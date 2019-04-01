@@ -1,21 +1,9 @@
-# An endpoint for client connections using cli
-# allowed format is "ip:port" to bind Worker to given IP address
-# or ":port" to bind Worker to all available IPs
 endpoint: ":15010"
 
-# Admin key is a key that allows to use worker management API without
-# configuring master key.
-# Useful for development and/or debugging.
 admin: {{ADMIN_ADDRESS}}
 
-# Master key is a key that receives all payments for deals
-# This worker should be confirmed by master via sonmcli master confirm,
-# it's eth addr can be found in logs.
-# Private key is also exported in /var/lib/sonm/worker_keystore with "sonm" passphrase
-# This option is required.
 master: {{MASTER_ADDRESS}}
-metrics_collector: 0xc5e20a52e67ef65f7d73728bcfaa0f53b00220b9
-# NAT punching settings.
+#metrics_collector: 0xc5e20a52e67ef65f7d73728bcfaa0f53b00220b9
 npp: &npp
   rendezvous:
     endpoints:
@@ -24,47 +12,18 @@ npp: &npp
     endpoints:
       - {{RELAY_ENDPOINT}}
 
-#  Resources section is available only on Linux
-#  If configured, all tasks will share this pool of resources.
-#  This pool is a parent control group.
-#  Format is Open Container Initiative Runtime Specification:
-#resources:
-#  cgroup: insonmnia
-#  resources:
-#    # https://github.com/opencontainers/runtime-spec/blob/master/config-linux.md#memory
-#    memory:
-#      limit: 1000
-#    # https://github.com/opencontainers/runtime-spec/blob/master/config-linux.md#cpu
-#    cpu:
-#      quota: 1024
-#      cpus: "2-3"
-#    # https://github.com/opencontainers/runtime-spec/blob/master/config-linux.md#network
-#    network:
-#      classID: 1048577
-
-# A list of IPs that can be used to reach the worker, optional param. If not provided, worker's interfaces will
-# be scanned for such IPs (if there's no firewall settings).
-# Ignored if firewall settings are not null.
-# public_ip_addrs: ["12.34.56.78", "1.2.3.4"]
-
 logging:
-  # The desired logging level.
-  # Allowed values are "debug", "info", "warn", "error", "panic" and "fatal"
   level: debug
 
 store:
-  path: "{{WORKER_STORE_PATH}}"
+  endpoimt: "{{WORKER_STORE_PATH}}"
 
 benchmarks:
-  # URL to download benchmark list, use `file://` schema to load file from a filesystem.
   url: "{{BENCHMARKS_LIST}}"
 
 whitelist:
-  # URL to downloads list of allowed containers.
   url: "https://raw.githubusercontent.com/sonm-io/allowed-list/master/general_whitelist.json"
-  # Deprecated: use PrivilegedIdentityLevel instead
   enabled: true
-  # allow users of this level or higher to skip whitelist
   privileged_identity_level: identified
 
 matcher:
@@ -79,38 +38,3 @@ plugins:
 
   {{GPU_SETTINGS}}
     {{GPU_TYPE}}
-
-  volume:
-    root: /var/lib/docker-volumes
-    drivers:
-      cifs: {}
-      btfs: {}
-
-  overlay:
-    drivers:
-      tinc:
-        enabled: true
-      l2tp:
-        enabled: true
-
-# metrics_listen_addr is addr to bind prometheus
-# metrics exporter endpoint.
-metrics_listen_addr: "127.0.0.1:14001"
-
-# Optional SSH server, that allows users to login into their containers.
-# It works through NPP, i.e. can be used even if a worker is located behind NAT.
-ssh:
-  # Endpoint where SSH server will be exposed.
-  # Optional.
-  endpoint: localhost:0
-  # NPP settings.
-  # It is extremely likely that it should be borrowed from the global NPP
-  # settings.
-  npp: *npp
-  # Minimum user identity allowed to login into containers.
-  # By security reasons only identified users are allowed to login in their
-  # containers.
-  # This can be changed for testing purposes, but it is unsafe.
-  # Optional.
-  # Default value is "identified".
-  identity: identified
