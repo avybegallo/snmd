@@ -1,0 +1,74 @@
+# Local Node settings
+node:
+  # Node's port to listen for client connection
+  bind_port: 15030
+
+# NAT punching settings.
+npp: &npp
+  # Rendezvous settings.
+  rendezvous:
+    # Known rendezvous endpoints.
+    #
+    # Must be in ETHAddress@Host:Port format.
+    endpoints:
+      - {{RENDEZVOUS_ENDPOINT}}
+  # Relay settings.
+  relay:
+    # Known relay endpoints.
+    #
+    # The format is Host:Port.
+    # Can be omitted, meaning that relaying is disabled.
+    endpoints:
+      - {{RELAY_ENDPOINT}}
+
+# DWH service settings
+dwh:
+  # marketplace gRPC endpoint, required
+  endpoint: "{{DWH_ENDPOINT}}"
+
+# Matcher settings.
+# Matcher is routine that catches created BID orders and try to
+# open deal with most profitable ASK order that fits resource requirements.
+matcher:
+  poll_delay: 30s
+  query_limit: 10
+
+benchmarks:
+  # URL to download benchmark list, use `file://` schema to load file from a filesystem.
+  url: "{{BENCHMARKS_LIST}}"
+
+# Logging settings.
+log:
+  # The desired logging level.
+  # Allowed values are "debug", "info", "warn", "error", "panic" and "fatal"
+  level: debug
+
+# Settings for Ethereum keys
+ethereum: &ethereum
+  # path to keystore
+  key_store: "{{KEYSTORE}}"
+  # passphrase for keystore
+  pass_phrase: {{PASSWORD}}
+
+metrics_listen_addr: "127.0.0.1:14003"
+
+blockchain:
+  # gas price for masterchain transactions, in wei
+  # default is 20 Gwei
+  # masterchain_gas_price: 20Gwei
+
+# Order price predictor settings.
+# Optional.
+#predictor:
+#  marketplace:
+#      # Account settings.
+#      ethereum: *ethereum
+#      # DWH endpoint.
+#      endpoint: {{DWH_ENDPOINT}}
+#      # Interval of current orders caching, that are fetched from the marketplace.
+#      interval: 30s
+#      # Minimum price threshold for fetching orders from the marketplace.
+#      # Used to prevent regression poisoning.
+#      # Optional.
+#      # Default value is 0.0001 USD/h, which is nearly about 1 USD per year.
+#      min_price: 0.0001 USD/h
