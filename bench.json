@@ -1,0 +1,83 @@
+{
+  "cpu-sysbench-multi": {
+    "id": 0,
+    "image": "yashrimpe/test-bench@sha256:ecfcb7d47302c34073d70bf750df264e8b1e27bb037d63ae7de4ce653b375b63",
+    "type": 1,
+    "splittingAlgorithm": 1
+  },
+  "cpu-sysbench-single": {
+    "id": 1,
+    "image": "yashrimpe/test-bench@sha256:ecfcb7d47302c34073d70bf750df264e8b1e27bb037d63ae7de4ce653b375b63",
+    "type": 1
+  },
+  "cpu-cores": {
+    "id": 2,
+    "type": 1
+  },
+  "ram-size": {
+    "id": 3,
+    "type": 3,
+    "splittingAlgorithm": 1
+  },
+  "storage-size": {
+    "id": 4,
+    "type": 4,
+    "splittingAlgorithm": 1
+  },
+  "net-download": {
+    "id": 5,
+    "image": "yashrimpe/test-bench@sha256:ecfcb7d47302c34073d70bf750df264e8b1e27bb037d63ae7de4ce653b375b63",
+    "type": 5,
+    "splittingAlgorithm": 1
+  },
+  "net-upload": {
+    "id": 6,
+    "image": "yashrimpe/test-bench@sha256:ecfcb7d47302c34073d70bf750df264e8b1e27bb037d63ae7de4ce653b375b63",
+    "type": 6,
+    "splittingAlgorithm": 1
+  },
+  "gpu-count": {
+    "id": 7,
+    "type": 2,
+    "splittingAlgorithm": 1
+  },
+  "gpu-mem": {
+    "id": 8,
+    "type": 2,
+    "splittingAlgorithm": 2
+  },
+  "gpu-eth-hashrate": {
+    "id": 9,
+    "image": "yashrimpe/test-bench@sha256:ecfcb7d47302c34073d70bf750df264e8b1e27bb037d63ae7de4ce653b375b63",
+    "type": 2,
+    "splittingAlgorithm": 1
+  },
+  "gpu-cash-hashrate": {
+    "id": 10,
+    "image": "yashrimpe/test-bench@sha256:ecfcb7d47302c34073d70bf750df264e8b1e27bb037d63ae7de4ce653b375b63",
+    "type": 2,
+    "splittingAlgorithm": 1
+  },
+  "gpu-redshift": {
+    "id": 11,
+    "image": "yashrimpe/test-bench@sha256:ecfcb7d47302c34073d70bf750df264e8b1e27bb037d63ae7de4ce653b375b63",
+    "type": 2,
+    "splittingAlgorithm": 1
+  },
+  "cpu-cryptonight": {
+    "id": 12,
+    "image": "yashrimpe/test-bench@sha256:ecfcb7d47302c34073d70bf750df264e8b1e27bb037d63ae7de4ce653b375b63",
+    "type": 1,
+    "splittingAlgorithm": 1
+  },
+  "gpu-nvidia": {
+    "id": 13,
+    "type": 2,
+    "splittingAlgorithm": 2
+  },
+  "gpu-radeon": {
+    "id": 14,
+    "type": 2,
+    "splittingAlgorithm": 2
+  }
+}

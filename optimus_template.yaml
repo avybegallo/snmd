@@ -55,12 +55,3 @@ optimization: &optimization
         max_age: 5m
 
 workers:
-  {{WORKER_ADDRESS}}@127.0.0.1:15010:
-    ethereum: *ethereum
-    epoch: 60s
-    order_duration_threshold: 24h
-    stale_threshold: 5m
-    price_threshold: 5%
-    identity: anonymous
-    prelude_timeout: 30s
-    optimization: *optimization

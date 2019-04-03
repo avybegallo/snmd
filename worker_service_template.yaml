@@ -1,0 +1,14 @@
+[Unit]
+Description=SONM Worker_{{WORKER_INDEX}}
+Wants=network-online.target
+After=network.target network-online.target
+
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/sonmworker --config="/etc/sonm/worker_{{WORKER_INDEX}}.yaml"
+Restart=on-failure
+
+
+[Install]
+WantedBy=multi-user.target

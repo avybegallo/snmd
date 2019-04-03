@@ -1,4 +1,4 @@
-endpoint: ":15010"
+endpoint: ":1501{{WORKER_INDEX}}"
 
 admin: {{ADMIN_ADDRESS}}
 
@@ -16,7 +16,7 @@ logging:
   level: debug
 
 store:
-  endpoimt: "{{WORKER_STORE_PATH}}"
+  endpoint: "/var/lib/sonm_{{WORKER_INDEX}}/worker.boltdb"
 
 benchmarks:
   url: "{{BENCHMARKS_LIST}}"
@@ -36,5 +36,9 @@ dwh:
 plugins:
   socket_dir: /run/docker/plugins
 
-  {{GPU_SETTINGS}}
-    {{GPU_TYPE}}
+  gpus:
+    fake:
+      device_count: {{GPU_COUNT}}
+
+development:
+  disable_master_approval: true

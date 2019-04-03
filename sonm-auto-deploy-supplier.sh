@@ -4,7 +4,7 @@
 set -o errexit
 
 # Executes cleanup function at script exit.
-trap cleanup EXIT
+# trap cleanup EXIT
 
 OPTIMUS_MIN_PRICE=$(cat /etc/sonm/optimus-default.yaml | grep min_price | awk '{print $2}')
 if [ -z $(echo $OPTIMUS_MIN_PRICE) ]; then
@@ -14,7 +14,7 @@ fi
 MASTER_ADDRESS=$1
 DEV=$2
 github_url='https://raw.githubusercontent.com/sonm-io/autodeploy'
-worker_config="worker-default.yaml"
+
 node_config="node-default.yaml"
 cli_config="cli.yaml"
 optimus_config="optimus-default.yaml"
@@ -195,23 +195,53 @@ set_up_node() {
 }
 
 set_up_worker() {
-    echo setting up worker...
-    modify_config "worker_template.yaml" ${worker_config}
-    mv ${worker_config} /etc/sonm/${worker_config}
+    WORKER_INDEX=0
+    while [[ $WORKER_INDEX -lt 10 ]]; do
+        worker_config="worker_$WORKER_INDEX.yaml"
+        echo setting up worker $WORKER_INDEX...
+        modify_config "worker_template.yaml" ${worker_config}
+        mv ${worker_config} /etc/sonm/${worker_config}
+        WORKER_INDEX=$(( $WORKER_INDEX + 1))
+        # sleep 5
+    done
+}
+
+set_up_worker_service() {
+    WORKER_INDEX=0
+    while [[ $WORKER_INDEX -lt 10 ]]; do
+        worker_service_config="sonm-worker-$WORKER_INDEX.service"
+        echo setting up service sonm-worker-$WORKER_INDEX...
+        modify_config "worker_service_template.yaml" ${worker_service_config}
+        mv ${worker_service_config} /lib/systemd/system/${worker_service_config}
+        sudo systemctl enable sonm-worker-$WORKER_INDEX
+        sudo systemctl start sonm-worker-$WORKER_INDEX
+        WORKER_INDEX=$(( $WORKER_INDEX + 1))
+        sleep .1
+    done
 }
 
 set_up_optimus() {
     echo setting up optimus...
     modify_config "optimus_template.yaml" ${optimus_config}
-    mv ${optimus_config} /etc/sonm/${optimus_config}
+    PORT=15010
+    for i in $(sudo ls /var/lib/sonm/worker_keystore/); do
+        WORKER_ADDRESS=0x$(sudo cat /var/lib/sonm/worker_keystore/$i | jq '.address' | tr -d '"')
+        echo "  $WORKER_ADDRESS@127.0.0.1:$PORT:" >> ${optimus_config}
+        echo "" >> ${optimus_config}
+        cat optimus_append.yaml >> ${optimus_config}
+        echo '' >> ${optimus_config}
+    PORT=$(($PORT+1))
+done
+
+    # mv ${optimus_config} /etc/sonm/${optimus_config}
 }
 
 validate_master
-install_dependencies
-install_docker
-resolve_gpu
-install_sonm
-download_templates
+# install_dependencies
+# install_docker
+# resolve_gpu
+# install_sonm
+#download_templates
 load_variables
 
 #cli
@@ -221,14 +251,16 @@ set_up_cli
 set_up_node
 #worker
 set_up_worker
+set_up_worker_service
 
+#echo starting node, worker and optimus
+#systemctl restart sonm-worker sonm-node
+systemctl stop sonm-node sonm-optimus
 
-echo starting node, worker and optimus
-systemctl restart sonm-worker sonm-node
-#confirm worker
-resolve_worker_key
-echo "worker address ${WORKER_ADDRESS}"
-echo "Switching to worker"
-su ${actual_user} -c "sonmcli worker switch ${WORKER_ADDRESS}@127.0.0.1:15010"
+# # confirm worker
+# resolve_worker_key
+# echo "worker address ${WORKER_ADDRESS}"
+# echo "Switching to worker"
+# su ${actual_user} -c "sonmcli worker switch ${WORKER_ADDRESS}@127.0.0.1:15010"
 set_up_optimus
-systemctl restart sonm-optimus
+# systemctl restart sonm-optimus
