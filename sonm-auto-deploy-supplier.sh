@@ -12,23 +12,22 @@ if [ -z $(echo $OPTIMUS_MIN_PRICE) ]; then
 fi
 
 MASTER_ADDRESS=$1
-DEV=$2
+
+GPU_COUNT=6
+GPU_COUNT_MODIFIED=$2
+if [ ${GPU_COUNT_MODIFIED} ]; then GPU_COUNT=${GPU_COUNT_MODIFIED}; fi
+
 github_url='https://raw.githubusercontent.com/sonm-io/autodeploy'
 
 node_config="node-default.yaml"
 cli_config="cli.yaml"
 optimus_config="optimus-default.yaml"
-if [ ${DEV} ]; then
-    echo Installing SONM dev packages
-    rm  -f /etc/apt/sources.list.d/SONM_core.list
-    branch='dev'
-    download_url='https://packagecloud.io/install/repositories/SONM/core-dev/script.deb.sh'
-else
-    echo Installing SONM packages
-    rm  -f /etc/apt/sources.list.d/SONM_core-dev.list
-    branch='master'
-    download_url='https://packagecloud.io/install/repositories/SONM/core/script.deb.sh'
-fi
+
+echo Installing SONM packages
+rm  -f /etc/apt/sources.list.d/SONM_core-dev.list
+branch='master'
+download_url='https://packagecloud.io/install/repositories/SONM/core/script.deb.sh'
+
 if [ ${SUDO_USER} ]; then actual_user=${SUDO_USER}; else actual_user=$(whoami); fi
 actual_user_home=$(eval echo ~${actual_user})
 

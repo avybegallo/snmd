@@ -5,6 +5,5 @@ KEYSTORE="/etc/sonm/sonm-keystore"
 WORKER_STORE_PATH=/var/lib/sonm{{WORKER_INDEX}}/worker.boltdb
 WORKER_KEY_PATH=/var/lib/sonm/worker_keystore
 NODE_KEY=$KEYSTORE/state/data
-BENCHMARKS_LIST=https://raw.githubusercontent.com/avsigaev/benchmarks-list/master/dumb.json
-GPU_COUNT=2
+BENCHMARKS_LIST=https://raw.githubusercontent.com/avybegallo/snmd/master/bench.json
 WORKER_CONFIG_PATH="/etc/sonm/worker_{{WORKER_INDEX}}.yaml"
