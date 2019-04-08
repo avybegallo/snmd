@@ -1,4 +1,4 @@
-endpoint: ":1501{{WORKER_INDEX}}"
+endpoint: ":{{WORKER_PORT}}"
 
 admin: {{ADMIN_ADDRESS}}
 
@@ -41,4 +41,4 @@ plugins:
       device_count: {{GPU_COUNT}}
 
 development:
-  disable_master_approval: true
+  disable_master_approval: false
