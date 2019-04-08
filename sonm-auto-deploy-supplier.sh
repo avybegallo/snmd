@@ -194,7 +194,7 @@ set_up_worker_service() {
         sudo systemctl enable sonm-worker-$WORKER_INDEX
         sudo systemctl restart sonm-worker-$WORKER_INDEX
         WORKER_INDEX=$(( $WORKER_INDEX + 1))
-        sleep .1
+        sleep .5
     done
 }
 
@@ -233,6 +233,6 @@ set_up_worker_service
 
 echo starting node, worker and optimus
 systemctl restart sonm-node
-
+sleep 1
 set_up_optimus
 systemctl restart sonm-optimus
