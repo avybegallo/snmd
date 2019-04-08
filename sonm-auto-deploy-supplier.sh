@@ -192,7 +192,7 @@ set_up_worker_service() {
         modify_config "worker_service_template.yaml" ${worker_service_config}
         mv ${worker_service_config} /lib/systemd/system/${worker_service_config}
         sudo systemctl enable sonm-worker-$WORKER_INDEX
-        sudo systemctl start sonm-worker-$WORKER_INDEX
+        sudo systemctl restart sonm-worker-$WORKER_INDEX
         WORKER_INDEX=$(( $WORKER_INDEX + 1))
         sleep .1
     done
