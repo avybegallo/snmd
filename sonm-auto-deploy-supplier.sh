@@ -38,6 +38,7 @@ actual_user_home=$(eval echo ~${actual_user})
 cleanup() {
     rm -f *_template.yaml
     rm -f variables.txt
+    rm -f optimus_append.yaml
 }
 
 
