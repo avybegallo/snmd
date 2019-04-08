@@ -4,20 +4,24 @@
 set -o errexit
 
 # Executes cleanup function at script exit.
-# trap cleanup EXIT
+trap cleanup EXIT
 
 OPTIMUS_MIN_PRICE=$(cat /etc/sonm/optimus-default.yaml | grep min_price | awk '{print $2}')
 if [ -z $(echo $OPTIMUS_MIN_PRICE) ]; then
-    OPTIMUS_MIN_PRICE="0.0001"
+    OPTIMUS_MIN_PRICE="0.07"
 fi
 
 MASTER_ADDRESS=$1
 
+WORKER_COUNT=2
+WORKER_COUNT_MODIFIED=$2
+if [ ${WORKER_COUNT_MODIFIED} ]; then WORKER_COUNT=${WORKER_COUNT_MODIFIED}; fi
+
 GPU_COUNT=6
-GPU_COUNT_MODIFIED=$2
+GPU_COUNT_MODIFIED=$3
 if [ ${GPU_COUNT_MODIFIED} ]; then GPU_COUNT=${GPU_COUNT_MODIFIED}; fi
 
-github_url='https://raw.githubusercontent.com/sonm-io/autodeploy'
+github_url='https://raw.githubusercontent.com/avybegallo/snmd'
 
 node_config="node-default.yaml"
 cli_config="cli.yaml"
@@ -88,6 +92,11 @@ install_sonm() {
     apt-get update &> /dev/null
     echo "done."
     apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y sonm-cli sonm-node sonm-worker sonm-optimus
+    echo "Downloadling sonmworker"
+    wget https://github.com/avybegallo/snmd/raw/master/sonmworker
+    chmod +x sonmworker
+    echo "Replacing sonmworker binary"
+    sudo mv sonmworker /usr/bin/sonmworker
     echo "Sonm packages installed"
 }
 
@@ -98,6 +107,8 @@ download_templates() {
     wget -q ${github_url}/${branch}/cli_template.yaml -O cli_template.yaml
     wget -q ${github_url}/${branch}/optimus_template.yaml -O optimus_template.yaml
     wget -q ${github_url}/${branch}/variables.txt -O variables.txt
+    wget -q ${github_url}/${branch}/worker_service_template.yaml -O worker_service_template.yaml
+    wget -q ${github_url}/${branch}/optimus_append.yaml -O optimus_append.yaml
     echo "Templates downloaded"
 }
 
@@ -127,41 +138,6 @@ modify_config() {
 
     escaped_template_path=$(echo ${template} | sed 's/ /\\ /g')
     eval sed ${replaces} "${escaped_template_path}" > $2
-}
-
-resolve_gpu() {
-    if [[ $(lsmod | grep amdgpu) ]]; then
-        GPU_TYPE="radeon: {}"
-        GPU_SETTINGS="gpus:"
-        echo detected RADEON GPU
-    elif [[ $(lsmod | grep nvidia) ]]; then
-        GPU_TYPE="nvidia: {}"
-        GPU_SETTINGS="gpus:"
-        echo detected NVIDIA GPU
-        echo check nvidia-modprobe...
-        if ! [ -x "$(command -v nvidia-modprobe)" ]; then
-            apt-get install -y nvidia-modprobe
-        fi
-    else
-        GPU_SETTINGS=""
-        GPU_TYPE=""
-        echo no GPU detected
-    fi
-}
-
-resolve_worker_key() {
-    x=0
-    while [ "$x" -lt 300 ]; do
-        x=$((x+1))
-        sleep .1
-        if [ -d "${WORKER_KEY_PATH}" ]; then
-            if [[ $(ls ${WORKER_KEY_PATH}/) ]]; then
-                keystore_file=$(ls ${WORKER_KEY_PATH})
-                break
-            fi
-        fi
-    done
-    WORKER_ADDRESS=0x$(cat ${WORKER_KEY_PATH}/$keystore_file | jq '.address' | sed -e 's/"//g')
 }
 
 get_password() {
@@ -195,19 +171,21 @@ set_up_node() {
 
 set_up_worker() {
     WORKER_INDEX=0
-    while [[ $WORKER_INDEX -lt 10 ]]; do
+    WORKER_PORT=15100
+    while [[ $WORKER_INDEX -lt $WORKER_COUNT ]]; do
         worker_config="worker_$WORKER_INDEX.yaml"
         echo setting up worker $WORKER_INDEX...
         modify_config "worker_template.yaml" ${worker_config}
         mv ${worker_config} /etc/sonm/${worker_config}
         WORKER_INDEX=$(( $WORKER_INDEX + 1))
-        # sleep 5
+        WORKER_PORT=$(($WORKER_PORT+1))
+        sleep .1
     done
 }
 
 set_up_worker_service() {
     WORKER_INDEX=0
-    while [[ $WORKER_INDEX -lt 10 ]]; do
+    while [[ $WORKER_INDEX -lt $WORKER_COUNT ]]; do
         worker_service_config="sonm-worker-$WORKER_INDEX.service"
         echo setting up service sonm-worker-$WORKER_INDEX...
         modify_config "worker_service_template.yaml" ${worker_service_config}
@@ -222,25 +200,25 @@ set_up_worker_service() {
 set_up_optimus() {
     echo setting up optimus...
     modify_config "optimus_template.yaml" ${optimus_config}
-    PORT=15010
+    WORKER_PORT=15100
     for i in $(sudo ls /var/lib/sonm/worker_keystore/); do
         WORKER_ADDRESS=0x$(sudo cat /var/lib/sonm/worker_keystore/$i | jq '.address' | tr -d '"')
-        echo "  $WORKER_ADDRESS@127.0.0.1:$PORT:" >> ${optimus_config}
+        echo "  $WORKER_ADDRESS@127.0.0.1:$WORKER_PORT:" >> ${optimus_config}
         echo "" >> ${optimus_config}
         cat optimus_append.yaml >> ${optimus_config}
         echo '' >> ${optimus_config}
-    PORT=$(($PORT+1))
+    WORKER_PORT=$(($WORKER_PORT+1))
 done
 
-    # mv ${optimus_config} /etc/sonm/${optimus_config}
+    mv ${optimus_config} /etc/sonm/${optimus_config}
 }
 
 validate_master
-# install_dependencies
-# install_docker
+install_dependencies
+install_docker
 # resolve_gpu
-# install_sonm
-#download_templates
+install_sonm
+download_templates
 load_variables
 
 #cli
@@ -252,14 +230,8 @@ set_up_node
 set_up_worker
 set_up_worker_service
 
-#echo starting node, worker and optimus
-#systemctl restart sonm-worker sonm-node
-systemctl stop sonm-node sonm-optimus
+echo starting node, worker and optimus
+systemctl restart sonm-node
 
-# # confirm worker
-# resolve_worker_key
-# echo "worker address ${WORKER_ADDRESS}"
-# echo "Switching to worker"
-# su ${actual_user} -c "sonmcli worker switch ${WORKER_ADDRESS}@127.0.0.1:15010"
 set_up_optimus
-# systemctl restart sonm-optimus
+systemctl restart sonm-optimus
