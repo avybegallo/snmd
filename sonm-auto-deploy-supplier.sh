@@ -8,7 +8,7 @@ trap cleanup EXIT
 
 OPTIMUS_MIN_PRICE=$(cat /etc/sonm/optimus-default.yaml | grep min_price | awk '{print $2}')
 if [ -z $(echo $OPTIMUS_MIN_PRICE) ]; then
-    OPTIMUS_MIN_PRICE="0.07"
+    OPTIMUS_MIN_PRICE="0.3"
 fi
 
 MASTER_ADDRESS=$1

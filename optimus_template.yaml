@@ -3,7 +3,7 @@ logging:
 
 restrictions:
   cgroup_name: /optimus
-  cpu_count: 0.5
+  cpu_count: 1
 
 ethereum: &ethereum
   key_store: "{{KEYSTORE}}"
@@ -43,15 +43,15 @@ optimization: &optimization
         exhaustion_limit: 128
         regression:
           type: nnls
-      - type: genetic
-        genome: packed
-        population_size: 256
-        max_generations: 128
-        max_age: 5m
-      - type: genetic
-        genome: decision
-        population_size: 512
-        max_generations: 64
-        max_age: 5m
+#      - type: genetic
+#        genome: packed
+#        population_size: 256
+#        max_generations: 128
+#        max_age: 5m
+#      - type: genetic
+#        genome: decision
+#        population_size: 512
+#        max_generations: 64
+#        max_age: 5m
 
 workers:
