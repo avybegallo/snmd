@@ -1,6 +1,6 @@
     ethereum: *ethereum
     epoch: 60s
-    order_duration_threshold: 24h
+    order_duration_threshold: 0h
     stale_threshold: 5m
     price_threshold: 5%
     identity: anonymous
