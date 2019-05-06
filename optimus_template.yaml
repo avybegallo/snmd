@@ -19,7 +19,7 @@ marketplace:
   ethereum: *ethereum
   endpoint: "{{DWH_ENDPOINT}}"
   interval: 30s
-  min_price: {{OPTIMUS_MIN_PRICE}} USD/h
+  min_price: 0.3 USD/h
 
 optimization: &optimization
   model:
