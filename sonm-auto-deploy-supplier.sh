@@ -194,7 +194,8 @@ set_up_worker_service() {
         sudo systemctl enable sonm-worker-$WORKER_INDEX
         sudo systemctl restart sonm-worker-$WORKER_INDEX
         WORKER_INDEX=$(( $WORKER_INDEX + 1))
-        sleep .5
+        echo "sleep for 10s..."
+        sleep 10
     done
 }
 
