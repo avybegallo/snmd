@@ -10,7 +10,7 @@ sudo mv sonmworker /usr/bin/sonmworker
 
 while [[ $WORKER_INDEX -lt $WORKER_COUNT ]]; do
         echo restarting worker $WORKER_INDEX...
-	sudo service restart sonm-worker-$WORKER_INDEX
+	sudo service sonm-worker-$WORKER_INDEX restart
         WORKER_INDEX=$(( $WORKER_INDEX + 1))
         sleep 3
 done
